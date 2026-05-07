@@ -4,7 +4,7 @@ Aplicación mobile desarrollada en **Flutter** orientada a la gestión operativa
 
 ---
 
-## 🧠 Concepto
+## Concepto
 
 SIO no reemplaza sistemas existentes de caja (POS), sino que los **complementa** mediante una solución mobile que permite:
 
@@ -17,7 +17,7 @@ SIO no reemplaza sistemas existentes de caja (POS), sino que los **complementa**
 
 ---
 
-## 🎯 Problema que resuelve
+## Problema que resuelve
 
 En la mayoría de los comercios:
 
@@ -25,7 +25,7 @@ En la mayoría de los comercios:
 * El depósito trabaja desconectado
 * La carga de mercadería es lenta y propensa a errores
 
-👉 Resultado: desorden operativo y stock incorrecto
+ Resultado: desorden operativo y stock incorrecto
 
 ---
 
@@ -42,14 +42,14 @@ SIO introduce una capa mobile que permite:
 
 ## 👥 Roles
 
-### 👑 Administrador
+###  Administrador
 
 * Visualiza estadísticas
 * Gestiona alertas
 * Exporta información
 * Controla el sistema completo
 
-### 👷 Empleado
+###  Empleado
 
 * Registra recepciones
 * Escanea productos
@@ -58,9 +58,9 @@ SIO introduce una capa mobile que permite:
 
 ---
 
-## 🧠 Funcionalidad clave
+##  Funcionalidad clave
 
-### 📦 Conversión de unidades (feature principal)
+###  Conversión de unidades (feature principal)
 
 Permite trabajar con productos empaquetados.
 
@@ -73,11 +73,11 @@ Ejemplo:
 factor_conversion = 240
 ```
 
-👉 El sistema transforma automáticamente cajas en unidades reales de stock.
+ El sistema transforma automáticamente cajas en unidades reales de stock.
 
 ---
 
-## 🧩 Funcionalidades principales
+##  Funcionalidades principales
 
 * 📷 Escaneo de código de barras (cámara)
 * ➕ Alta automática de productos
@@ -91,7 +91,7 @@ factor_conversion = 240
 
 ---
 
-## 🧱 Modelo de datos (simplificado)
+##  Modelo de datos (simplificado)
 
 **Producto**
 
@@ -113,7 +113,7 @@ factor_conversion = 240
 
 ---
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 ```plaintext
 UI (Flutter)
@@ -129,7 +129,7 @@ Firebase (sincronización)
 
 ---
 
-## 🧰 Stack tecnológico
+##  Stack tecnológico
 
 * Flutter (Material 3)
 * Firebase (Auth + Firestore)
@@ -152,9 +152,9 @@ Firebase (sincronización)
 
 ---
 
-## 🚀 Estado del proyecto
+##  Estado del proyecto
 
-🟡 En desarrollo
+ En desarrollo
 
 Actualmente incluye:
 
@@ -165,13 +165,13 @@ Actualmente incluye:
 
 ---
 
-## 🎯 Objetivo
+##  Objetivo
 
 Desarrollar una aplicación funcional, escalable y cercana a un entorno real de negocio, cumpliendo con los requisitos académicos y aplicando buenas prácticas de desarrollo mobile.
 
 ---
 
-## 📌 Autor
+##  Autor
 
 Proyecto desarrollado como trabajo práctico en ORT
 Carrera: Analista de Sistemas
