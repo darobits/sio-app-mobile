@@ -45,8 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => loading = false);
 
     if (res == null) {
-      showModernDialog("Bienvenido", "Inicio de sesión exitoso", true);
-    } else {
+      Navigator.pushReplacementNamed(context, '/recepcion');
+      } else {
       handleLoginError(res);
     }
   }
