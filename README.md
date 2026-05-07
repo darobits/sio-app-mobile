@@ -1,17 +1,181 @@
-# sio_app
+# 📦 SIO — Sistema Integral Operativo
 
-A new Flutter project.
+Aplicación mobile desarrollada en **Flutter** orientada a la gestión operativa de stock en PyMEs (kioscos, ferreterías, farmacias, almacenes, etc).
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🧠 Concepto
 
-A few resources to get you started if this is your first Flutter project:
+SIO no reemplaza sistemas existentes de caja (POS), sino que los **complementa** mediante una solución mobile que permite:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+* 📱 Operar desde cualquier lugar del local
+* 📦 Registrar mercadería en tiempo real
+* 🔍 Auditar stock de forma rápida
+* ⚡ Reducir errores humanos
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+💥 Es un **sistema distribuido de operación de depósito**
+
+---
+
+## 🎯 Problema que resuelve
+
+En la mayoría de los comercios:
+
+* El sistema está centralizado en una sola PC
+* El depósito trabaja desconectado
+* La carga de mercadería es lenta y propensa a errores
+
+👉 Resultado: desorden operativo y stock incorrecto
+
+---
+
+## 💡 Solución
+
+SIO introduce una capa mobile que permite:
+
+* Escaneo de productos con cámara
+* Alta dinámica de productos
+* Control de stock en tiempo real
+* Auditoría mediante escaneo
+
+---
+
+## 👥 Roles
+
+### 👑 Administrador
+
+* Visualiza estadísticas
+* Gestiona alertas
+* Exporta información
+* Controla el sistema completo
+
+### 👷 Empleado
+
+* Registra recepciones
+* Escanea productos
+* Consulta stock
+* Realiza auditorías
+
+---
+
+## 🧠 Funcionalidad clave
+
+### 📦 Conversión de unidades (feature principal)
+
+Permite trabajar con productos empaquetados.
+
+Ejemplo:
+
+* Se escanea una caja de tornillos
+* La caja contiene 240 unidades
+
+```plaintext
+factor_conversion = 240
+```
+
+👉 El sistema transforma automáticamente cajas en unidades reales de stock.
+
+---
+
+## 🧩 Funcionalidades principales
+
+* 📷 Escaneo de código de barras (cámara)
+* ➕ Alta automática de productos
+* 📦 Recepción de mercadería
+* 🔄 Auditoría de stock
+* 🔍 Búsqueda de productos
+* ✏️ Ajuste manual de stock
+* 📊 Estadísticas (admin)
+* ⚠️ Alertas de stock
+* 📁 Exportación a CSV
+
+---
+
+## 🧱 Modelo de datos (simplificado)
+
+**Producto**
+
+* id
+* nombre
+* codigo_barras
+* factor_conversion
+
+**Stock**
+
+* producto_id
+* cantidad
+
+**Recepcion**
+
+* id
+* fecha
+* usuario_id
+
+---
+
+## 🏗️ Arquitectura
+
+```plaintext
+UI (Flutter)
+↓
+Gestión de estado (Provider)
+↓
+Servicios (lógica)
+↓
+SQLite (offline)
+↓
+Firebase (sincronización)
+```
+
+---
+
+## 🧰 Stack tecnológico
+
+* Flutter (Material 3)
+* Firebase (Auth + Firestore)
+* SQLite (persistencia local)
+* mobile_scanner (cámara)
+* provider (estado)
+* csv / share_plus (exportación)
+
+---
+
+## 📊 Requerimientos cubiertos (TP)
+
+✔ CRUD completo
+✔ Base de datos SQLite
+✔ Reportes / estadísticas
+✔ Exportación de datos
+✔ Uso de hardware (cámara)
+✔ Diseño UX/UI amigable
+✔ Integración con Firebase
+
+---
+
+## 🚀 Estado del proyecto
+
+🟡 En desarrollo
+
+Actualmente incluye:
+
+* Login / Register funcional
+* Base de Firebase configurada
+* Scanner en desarrollo
+* Módulo de recepción en progreso
+
+---
+
+## 🎯 Objetivo
+
+Desarrollar una aplicación funcional, escalable y cercana a un entorno real de negocio, cumpliendo con los requisitos académicos y aplicando buenas prácticas de desarrollo mobile.
+
+---
+
+## 📌 Autor
+
+Proyecto desarrollado como trabajo práctico en ORT
+Carrera: Analista de Sistemas
+
+## Autor: Darío Villar | Analista Programador
+
+---
