@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "57470927439",
+    "project_id": "sio-app-db",
+    "storage_bucket": "sio-app-db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57470927439:android:e6816772002bc8ffb5603a",
+        "android_client_info": {
+          "package_name": "com.example.sio_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrhItpIcRAO_6-rbUvM2z7gmzJlD79JaM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
