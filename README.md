@@ -140,18 +140,6 @@ Firebase (sincronización)
 
 ---
 
-## 📊 Requerimientos cubiertos (TP)
-
-✔ CRUD completo
-✔ Base de datos SQLite
-✔ Reportes / estadísticas
-✔ Exportación de datos
-✔ Uso de hardware (cámara)
-✔ Diseño UX/UI amigable
-✔ Integración con Firebase
-
----
-
 ##  Estado del proyecto
 
  En desarrollo
