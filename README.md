@@ -176,6 +176,6 @@ Desarrollar una aplicación funcional, escalable y cercana a un entorno real de 
 Proyecto desarrollado como trabajo práctico en ORT
 Carrera: Analista de Sistemas
 
-## Autor: Darío Villar | Analista Programador
+## Darío Villar | Analista Programador
 
 ---
