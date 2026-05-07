@@ -13,7 +13,7 @@ SIO no reemplaza sistemas existentes de caja (POS), sino que los **complementa**
 * 🔍 Auditar stock de forma rápida
 * ⚡ Reducir errores humanos
 
-💥 Es un **sistema distribuido de operación de depósito**
+Es un **sistema distribuido de operación de depósito**
 
 ---
 
@@ -29,7 +29,7 @@ En la mayoría de los comercios:
 
 ---
 
-## 💡 Solución
+## Solución
 
 SIO introduce una capa mobile que permite:
 
@@ -40,7 +40,7 @@ SIO introduce una capa mobile que permite:
 
 ---
 
-## 👥 Roles
+## Roles
 
 ###  Administrador
 
