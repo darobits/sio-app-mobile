@@ -60,6 +60,9 @@ android/app/google-services.json
 # 
 ios/Runner/GoogleService-Info.plist
 
+#
+firebase.json
+
 # =========================
 # BUILD / CACHE
 # =========================
@@ -72,3 +75,7 @@ ios/Runner/GoogleService-Info.plist
 # =========================
 .DS_Store
 Thumbs.db
+linux/
+macos/
+windows/
+web/
