@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../core/router/app_router.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,7 +11,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   final auth = AuthService();
@@ -17,7 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
 
   Future<void> login() async {
-
     final email = emailCtrl.text.trim();
     final password = passCtrl.text.trim();
 
@@ -45,14 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => loading = false);
 
     if (res == null) {
-      Navigator.pushReplacementNamed(context, '/recepcion');
-      } else {
+      Navigator.pushReplacementNamed(context, AppRouter.home);
+    } else {
       handleLoginError(res);
     }
   }
 
   void handleLoginError(String error) {
-
     List<String> errores = [];
 
     if (error.contains("user-not-found")) {
@@ -129,7 +128,10 @@ class _LoginScreenState extends State<LoginScreen> {
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 30,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 22, 57, 110),
                     borderRadius: BorderRadius.circular(12),
@@ -151,7 +153,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -162,16 +163,13 @@ class _LoginScreenState extends State<LoginScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-
                   const SizedBox(height: 80),
-
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -191,9 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 30),
-
                   const Text(
                     "Bienvenido",
                     style: TextStyle(
@@ -202,18 +198,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   const Text(
                     "Ingresá para continuar",
                     style: TextStyle(
                       color: Colors.white70,
                     ),
                   ),
-
                   const SizedBox(height: 30),
-
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -222,13 +214,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Column(
                       children: [
-
                         TextField(
                           controller: emailCtrl,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Ej: usuario@gmail.com',
-                            prefixIcon: const Icon(Icons.person, color: Colors.white70),
+                            prefixIcon: const Icon(
+                              Icons.person,
+                              color: Colors.white70,
+                            ),
                             filled: true,
                             fillColor: Colors.white.withOpacity(0.2),
                             border: OutlineInputBorder(
@@ -237,16 +231,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 15),
-
                         TextField(
                           controller: passCtrl,
                           obscureText: true,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Contraseña',
-                            prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                            prefixIcon: const Icon(
+                              Icons.lock,
+                              color: Colors.white70,
+                            ),
                             filled: true,
                             fillColor: Colors.white.withOpacity(0.2),
                             border: OutlineInputBorder(
@@ -255,34 +250,33 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: loading ? null : login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 22, 57, 110),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 22, 57, 110),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: loading
-                                ? const CircularProgressIndicator(color: Colors.white)
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
                                 : const Text("Ingresar"),
                           ),
                         ),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/register');
+                      Navigator.pushNamed(context, AppRouter.register);
                     },
                     child: const Text(
                       "¿No tenés cuenta? Registrate",

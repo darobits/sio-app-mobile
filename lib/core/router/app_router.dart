@@ -4,12 +4,16 @@ import '../../screens/login_screen.dart';
 import '../../screens/register_screen.dart';
 import '../../screens/recepcion_screen.dart';
 import '../../screens/product_form_screen.dart';
+import '../../screens/products_screen.dart';
+import '../../screens/home_screen.dart';
 
 class AppRouter {
   static const String login = "/";
   static const String register = "/register";
   static const String reception = "/recepcion";
   static const String productForm = "/productform";
+  static const String products = "/products";
+  static const String home = "/home";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -26,6 +30,11 @@ class AppRouter {
       case reception:
         return MaterialPageRoute(
           builder: (_) => const RecepcionScreen(),
+        );
+
+        case home:
+        return MaterialPageRoute(
+        builder: (_) => const HomeScreen(),
         );
 
       case productForm:
@@ -49,6 +58,11 @@ class AppRouter {
           builder: (_) => ProductFormScreen(
             barcode: barcode.trim(),
           ),
+        );
+
+      case products:
+        return MaterialPageRoute(
+          builder: (_) => const ProductsScreen(),
         );
 
       default:

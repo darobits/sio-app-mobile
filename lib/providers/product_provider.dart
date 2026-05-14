@@ -26,8 +26,13 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> deleteProduct(String barcode) async {
-    await _repository.deleteProduct(barcode);
-    products.removeWhere((product) => product.barcode == barcode);
-    notifyListeners();
+    try {
+      await _repository.deleteProduct(barcode);
+      products.removeWhere((product) => product.barcode == barcode);
+      notifyListeners();
+    } catch (e) {
+      error = 'No se pudo eliminar el producto';
+      notifyListeners();
+    }
   }
 }
