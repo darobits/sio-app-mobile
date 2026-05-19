@@ -6,6 +6,7 @@ import '../../screens/recepcion_screen.dart';
 import '../../screens/product_form_screen.dart';
 import '../../screens/products_screen.dart';
 import '../../screens/home_screen.dart';
+import '../../screens/audit_screen.dart';
 
 class AppRouter {
   static const String login = "/";
@@ -14,6 +15,7 @@ class AppRouter {
   static const String productForm = "/productform";
   static const String products = "/products";
   static const String home = "/home";
+  static const String audit = "/audit";
   static const String statistics = "/statistics";
   static const String alerts = "/alerts";
   static const String profile = "/profile";
@@ -38,6 +40,11 @@ class AppRouter {
       case reception:
         return MaterialPageRoute(
           builder: (_) => const RecepcionScreen(),
+        );
+
+      case audit:
+        return MaterialPageRoute(
+          builder: (_) => const AuditScreen(),
         );
 
       case productForm:

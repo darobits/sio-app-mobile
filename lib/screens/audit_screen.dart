@@ -42,13 +42,13 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
   }
 
   Future<void> searchProduct(String barcode) async {
-    ref.read(auditLoadingProvider.notifier).state = true;
+    ref.read(auditLoadingProvider.notifier).setLoading(true);
 
     final repository = ref.read(auditRepositoryProvider);
     final product = await repository.getProductByBarcode(barcode);
 
-    ref.read(auditProductProvider.notifier).state = product;
-    ref.read(auditLoadingProvider.notifier).state = false;
+    ref.read(auditProductProvider.notifier).setProduct(product);
+    ref.read(auditLoadingProvider.notifier).setLoading(false);
 
     if (product == null && mounted) {
       showMessage('Producto no encontrado');
@@ -69,7 +69,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
       return;
     }
 
-    ref.read(auditLoadingProvider.notifier).state = true;
+    ref.read(auditLoadingProvider.notifier).setLoading(true);
 
     try {
       final repository = ref.read(auditRepositoryProvider);
@@ -79,7 +79,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
         realStock: realStock,
       );
 
-      ref.read(auditProductProvider.notifier).state = null;
+      ref.read(auditProductProvider.notifier).clear();
       realStockCtrl.clear();
 
       if (!mounted) return;
@@ -100,7 +100,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
       );
     }
 
-    ref.read(auditLoadingProvider.notifier).state = false;
+    ref.read(auditLoadingProvider.notifier).setLoading(false);
   }
 
   void showMessage(String message) {
@@ -204,7 +204,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
         ],
       ),
       bottomNavigationBar: const SioBottomNav(
-        currentRoute: AppRouter.reception,
+        currentRoute: AppRouter.audit,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
