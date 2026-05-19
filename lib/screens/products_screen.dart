@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/product.dart';
 import '../providers/product_provider.dart';
 
-class ProductsScreen extends StatefulWidget {
+class ProductsScreen extends ConsumerStatefulWidget {
   const ProductsScreen({super.key});
 
   @override
-  State<ProductsScreen> createState() => _ProductsScreenState();
+  ConsumerState<ProductsScreen> createState() => _ProductsScreenState();
 }
 
-class _ProductsScreenState extends State<ProductsScreen> {
+class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   final searchCtrl = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      context.read<ProductProvider>().loadProducts();
-    });
-  }
 
   @override
   void dispose() {
@@ -30,17 +22,28 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final productsAsync = ref.watch(productProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFF071827),
       appBar: AppBar(
         backgroundColor: const Color(0xFF111827),
         title: const Text('Productos'),
       ),
-      body: Consumer<ProductProvider>(
-        builder: (context, provider, _) {
+      body: productsAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, stackTrace) => const Center(
+          child: Text(
+            'No se pudieron cargar los productos',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
+        data: (products) {
           final query = searchCtrl.text.toLowerCase();
 
-          final filteredProducts = provider.products.where((product) {
+          final filteredProducts = products.where((product) {
             final name = product.name.toLowerCase();
             final barcode = product.barcode.toLowerCase();
 
@@ -67,22 +70,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (provider.loading)
-                  const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (provider.error != null)
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        provider.error!,
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  )
-                else if (filteredProducts.isEmpty)
+                if (filteredProducts.isEmpty)
                   const Expanded(
                     child: Center(
                       child: Text(
@@ -94,104 +82,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 else
                   Expanded(
                     child: RefreshIndicator(
-                      onRefresh: provider.loadProducts,
+                      onRefresh: () async {
+                        ref.invalidate(productProvider);
+                      },
                       child: ListView.builder(
                         itemCount: filteredProducts.length,
                         itemBuilder: (context, index) {
                           final product = filteredProducts[index];
 
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF111827),
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: Colors.white10),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF16A085)
-                                        .withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: const Icon(
-                                    Icons.inventory_2_rounded,
-                                    color: Color(0xFF16A085),
-                                  ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product.name,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Código: ${product.barcode}',
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Caja/paquete: ${product.conversionFactor} unidades',
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '${product.currentStock}',
-                                      style: const TextStyle(
-                                        color: Color(0xFF22C55E),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const Text(
-                                      'unidades',
-                                      style: TextStyle(
-                                        color: Colors.white54,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    _confirmDelete(
-                                      context,
-                                      provider,
-                                      product.barcode,
-                                      product.name,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.delete_outline_rounded,
-                                    color: Colors.redAccent,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                          return _productCard(product);
                         },
                       ),
                     ),
@@ -204,9 +103,100 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
+  Widget _productCard(Product product) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111827),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF16A085).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.inventory_2_rounded,
+              color: Color(0xFF16A085),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Código: ${product.barcode}',
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Caja/paquete: ${product.conversionFactor} unidades',
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${product.currentStock}',
+                style: const TextStyle(
+                  color: Color(0xFF22C55E),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text(
+                'unidades',
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          IconButton(
+            onPressed: () {
+              _confirmDelete(
+                context,
+                product.barcode,
+                product.name,
+              );
+            },
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              color: Colors.redAccent,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _confirmDelete(
     BuildContext context,
-    ProductProvider provider,
     String barcode,
     String name,
   ) {
@@ -230,7 +220,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await provider.deleteProduct(barcode);
+
+              await ref
+                  .read(productProvider.notifier)
+                  .deleteProduct(barcode);
             },
             child: const Text(
               'Eliminar',

@@ -5,18 +5,22 @@ class AuthService {
   final _auth = FirebaseAuth.instance;
   final _db = FirebaseFirestore.instance;
 
-  Future<String?> register(String email, String password) async {
+  Future<String?> register(String name, String email, String password) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      await cred.user!.updateDisplayName(name);
       await cred.user!.sendEmailVerification();
 
       await _db.collection('usuarios').doc(cred.user!.uid).set({
+        'uid': cred.user!.uid,
+        'name': name,
         'email': email,
         'rol': 'operador',
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       return null;
@@ -32,7 +36,15 @@ class AuthService {
         password: password,
       );
 
-      if (!cred.user!.emailVerified) {
+      await cred.user!.reload();
+
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        return "No se pudo obtener el usuario";
+      }
+
+      if (!user.emailVerified) {
         return "Verificá tu email";
       }
 

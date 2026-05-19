@@ -14,6 +14,9 @@ class AppRouter {
   static const String productForm = "/productform";
   static const String products = "/products";
   static const String home = "/home";
+  static const String statistics = "/statistics";
+  static const String alerts = "/alerts";
+  static const String profile = "/profile";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -27,14 +30,14 @@ class AppRouter {
           builder: (_) => const RegisterScreen(),
         );
 
+      case home:
+        return MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        );
+
       case reception:
         return MaterialPageRoute(
           builder: (_) => const RecepcionScreen(),
-        );
-
-        case home:
-        return MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
         );
 
       case productForm:
@@ -63,6 +66,45 @@ class AppRouter {
       case products:
         return MaterialPageRoute(
           builder: (_) => const ProductsScreen(),
+        );
+
+      case statistics:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            backgroundColor: Color(0xFF071827),
+            body: Center(
+              child: Text(
+                "Estadísticas próximamente",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        );
+
+      case alerts:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            backgroundColor: Color(0xFF071827),
+            body: Center(
+              child: Text(
+                "Alertas próximamente",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        );
+
+      case profile:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            backgroundColor: Color(0xFF071827),
+            body: Center(
+              child: Text(
+                "Perfil próximamente",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
         );
 
       default:

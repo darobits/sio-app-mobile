@@ -9,7 +9,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-
+  final nameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   final auth = AuthService();
@@ -17,11 +17,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool loading = false;
 
   Future<void> register() async {
-
+    final name = nameCtrl.text.trim();
     final email = emailCtrl.text.trim();
     final password = passCtrl.text.trim();
 
     List<String> errores = [];
+
+    if (name.isEmpty) {
+      errores.add("• El nombre es obligatorio");
+    }
 
     if (email.isEmpty) {
       errores.add("• El email es obligatorio");
@@ -43,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => loading = true);
 
     try {
-      final res = await auth.register(email, password);
+      final res = await auth.register(name, email, password);
 
       setState(() => loading = false);
 
@@ -56,7 +60,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         handleFirebaseError(res);
       }
-
     } catch (e) {
       setState(() => loading = false);
       showModernDialog("Error", "Error inesperado", false);
@@ -64,7 +67,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void handleFirebaseError(String error) {
-
     List<String> errores = [];
 
     if (error.contains("email-already-in-use")) {
@@ -108,7 +110,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               Container(
                 decoration: BoxDecoration(
                   color: success
@@ -123,9 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: success ? Colors.green : Colors.red,
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Text(
                 title,
                 style: const TextStyle(
@@ -134,26 +133,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 10),
-
               Text(
                 message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70),
               ),
-
               const SizedBox(height: 20),
-
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
+
                   if (success) {
                     Navigator.pop(context);
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 30,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 22, 57, 110),
                     borderRadius: BorderRadius.circular(12),
@@ -172,11 +171,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
+  void dispose() {
+    nameCtrl.dispose();
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -189,7 +195,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-
           Positioned(
             top: 50,
             left: 16,
@@ -198,16 +203,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               onPressed: () => Navigator.pop(context),
             ),
           ),
-
           Center(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-
                     const SizedBox(height: 80),
-
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -227,9 +229,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 25),
-
                     const Text(
                       "Crear cuenta",
                       style: TextStyle(
@@ -238,9 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.white,
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -249,13 +247,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: Column(
                         children: [
-
                           TextField(
-                            controller: emailCtrl,
+                            controller: nameCtrl,
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
-                              hintText: 'Ej: usuario@gmail.com',
-                              prefixIcon: const Icon(Icons.email, color: Colors.white70),
+                              hintText: 'Ej: Darío Villar',
+                              prefixIcon: const Icon(
+                                Icons.person,
+                                color: Colors.white70,
+                              ),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.25),
                               border: OutlineInputBorder(
@@ -264,16 +264,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 15),
-
+                          TextField(
+                            controller: emailCtrl,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: 'Ej: usuario@gmail.com',
+                              prefixIcon: const Icon(
+                                Icons.email,
+                                color: Colors.white70,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.25),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 15),
                           TextField(
                             controller: passCtrl,
                             obscureText: true,
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               hintText: 'Mínimo 6 caracteres',
-                              prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                              prefixIcon: const Icon(
+                                Icons.lock,
+                                color: Colors.white70,
+                              ),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.25),
                               border: OutlineInputBorder(
@@ -282,31 +301,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 20),
-
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: loading ? null : register,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF5E3EC8),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
                               child: loading
-                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
                                   : const Text("Crear cuenta"),
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text(

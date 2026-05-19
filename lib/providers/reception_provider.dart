@@ -1,27 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/reception.dart';
 import '../repositories/reception_repository.dart';
 
-class ReceptionProvider extends ChangeNotifier {
-  final ReceptionRepository _repository = ReceptionRepository();
+final receptionRepositoryProvider = Provider<ReceptionRepository>((ref) {
+  return ReceptionRepository();
+});
 
-  List<Reception> receptions = [];
-  bool loading = false;
-  String? error;
+final receptionProvider =
+    AsyncNotifierProvider<ReceptionNotifier, List<Reception>>(
+  ReceptionNotifier.new,
+);
+
+class ReceptionNotifier extends AsyncNotifier<List<Reception>> {
+  late final ReceptionRepository _repository;
+
+  @override
+  Future<List<Reception>> build() async {
+    _repository = ref.read(receptionRepositoryProvider);
+    return _repository.getReceptions();
+  }
 
   Future<void> loadReceptions() async {
-    loading = true;
-    error = null;
-    notifyListeners();
+    state = const AsyncLoading();
 
-    try {
-      receptions = await _repository.getReceptions();
-    } catch (e) {
-      error = 'No se pudo cargar el historial de recepciones';
-    }
-
-    loading = false;
-    notifyListeners();
+    state = await AsyncValue.guard(() async {
+      return _repository.getReceptions();
+    });
   }
 }

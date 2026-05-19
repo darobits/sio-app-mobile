@@ -1,38 +1,39 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/product.dart';
 import '../repositories/product_repository.dart';
 
-class ProductProvider extends ChangeNotifier {
-  final ProductRepository _repository = ProductRepository();
+final productRepositoryProvider = Provider<ProductRepository>((ref) {
+  return ProductRepository();
+});
 
-  List<Product> products = [];
-  bool loading = false;
-  String? error;
+final productProvider =
+    AsyncNotifierProvider<ProductNotifier, List<Product>>(
+  ProductNotifier.new,
+);
+
+class ProductNotifier extends AsyncNotifier<List<Product>> {
+  late final ProductRepository _repository;
+
+  @override
+  Future<List<Product>> build() async {
+    _repository = ref.read(productRepositoryProvider);
+    return _repository.getProducts();
+  }
 
   Future<void> loadProducts() async {
-    loading = true;
-    error = null;
-    notifyListeners();
+    state = const AsyncLoading();
 
-    try {
-      products = await _repository.getProducts();
-    } catch (e) {
-      error = 'No se pudieron cargar los productos';
-    }
-
-    loading = false;
-    notifyListeners();
+    state = await AsyncValue.guard(() async {
+      return _repository.getProducts();
+    });
   }
 
   Future<void> deleteProduct(String barcode) async {
-    try {
-      await _repository.deleteProduct(barcode);
-      products.removeWhere((product) => product.barcode == barcode);
-      notifyListeners();
-    } catch (e) {
-      error = 'No se pudo eliminar el producto';
-      notifyListeners();
-    }
+    await _repository.deleteProduct(barcode);
+
+    state = await AsyncValue.guard(() async {
+      return _repository.getProducts();
+    });
   }
 }
