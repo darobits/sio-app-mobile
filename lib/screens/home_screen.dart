@@ -1,25 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/router/app_router.dart';
+import '../providers/user_provider.dart';
 import '../widgets/sio_bottom_nav.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  String getUserName() {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user?.displayName != null && user!.displayName!.trim().isNotEmpty) {
-      return user.displayName!.trim();
-    }
-
-    if (user?.email != null && user!.email!.trim().isNotEmpty) {
-      return user.email!.split('@').first;
-    }
-
-    return 'Operador';
-  }
 
   Widget _dashboardCard({
     required IconData icon,
@@ -145,146 +133,193 @@ class HomeScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final userName = getUserName();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF071827),
-      drawer: Drawer(
-        backgroundColor: const Color(0xFF111827),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _drawerLogo(),
-              const Divider(color: Colors.white12),
-              ListTile(
-                leading: const Icon(Icons.inventory_2_rounded),
-                title: const Text('Productos'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, AppRouter.products);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.history_rounded),
-                title: const Text('Historial'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Historial próximamente')),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout_rounded),
-                title: const Text('Cerrar sesión'),
-                onTap: () async {
-                  await FirebaseAuth.instance.signOut();
-
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, AppRouter.login);
-                  }
-                },
-              ),
-            ],
+    return userAsync.when(
+      loading: () => const Scaffold(
+        backgroundColor: Color(0xFF071827),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (_, __) => const Scaffold(
+        backgroundColor: Color(0xFF071827),
+        body: Center(
+          child: Text(
+            'No se pudo cargar el usuario',
+            style: TextStyle(color: Colors.white70),
           ),
         ),
       ),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF071827),
-        elevation: 0,
-        titleSpacing: 0,
-        title: Row(
-          children: [
-            _headerLogo(),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                '¡Hola, $userName!',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
+      data: (appUser) {
+        final userName = appUser?.name.trim().isNotEmpty == true
+            ? appUser!.name
+            : 'Operador';
+
+        final isAdmin = appUser?.isAdmin ?? false;
+
+        final cards = <Widget>[
+          _dashboardCard(
+            icon: Icons.inventory_2_rounded,
+            title: 'Recepción',
+            color: const Color(0xFF16A085),
+            onTap: () {
+              Navigator.pushNamed(context, AppRouter.reception);
+            },
+          ),
+          _disabledCard(
+            icon: Icons.sync_rounded,
+            title: 'Auditoría',
+            color: const Color(0xFF4F7BFF),
+          ),
+          _dashboardCard(
+            icon: Icons.warning_amber_rounded,
+            title: 'Alertas',
+            color: const Color(0xFFFF5C70),
+            onTap: () {
               Navigator.pushNamed(context, AppRouter.alerts);
             },
-            icon: const Icon(Icons.notifications_none_rounded),
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
-          child: Column(
-            children: [
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1.08,
-                  children: [
-                    _dashboardCard(
-                      icon: Icons.inventory_2_rounded,
-                      title: 'Recepción',
-                      color: const Color(0xFF16A085),
+        ];
+
+        if (isAdmin) {
+          cards.addAll([
+            _dashboardCard(
+              icon: Icons.bar_chart_rounded,
+              title: 'Estadísticas',
+              color: const Color(0xFF8B5CF6),
+              onTap: () {
+                Navigator.pushNamed(context, AppRouter.statistics);
+              },
+            ),
+            _dashboardCard(
+              icon: Icons.folder_rounded,
+              title: 'Productos',
+              color: const Color(0xFFFFC857),
+              onTap: () {
+                Navigator.pushNamed(context, AppRouter.products);
+              },
+            ),
+            _disabledCard(
+              icon: Icons.file_download_rounded,
+              title: 'Exportar',
+              color: const Color(0xFFFFA726),
+            ),
+          ]);
+        }
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF071827),
+          drawer: Drawer(
+            backgroundColor: const Color(0xFF111827),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _drawerLogo(),
+                  const Divider(color: Colors.white12),
+                  if (isAdmin)
+                    ListTile(
+                      leading: const Icon(Icons.inventory_2_rounded),
+                      title: const Text('Productos'),
                       onTap: () {
-                        Navigator.pushNamed(context, AppRouter.reception);
-                      },
-                    ),
-                    _disabledCard(
-                      icon: Icons.sync_rounded,
-                      title: 'Auditoría',
-                      color: const Color(0xFF4F7BFF),
-                    ),
-                    _dashboardCard(
-                      icon: Icons.bar_chart_rounded,
-                      title: 'Estadísticas',
-                      color: const Color(0xFF8B5CF6),
-                      onTap: () {
-                        Navigator.pushNamed(context, AppRouter.statistics);
-                      },
-                    ),
-                    _dashboardCard(
-                      icon: Icons.warning_amber_rounded,
-                      title: 'Alertas',
-                      color: const Color(0xFFFF5C70),
-                      onTap: () {
-                        Navigator.pushNamed(context, AppRouter.alerts);
-                      },
-                    ),
-                    _dashboardCard(
-                      icon: Icons.folder_rounded,
-                      title: 'Productos',
-                      color: const Color(0xFFFFC857),
-                      onTap: () {
+                        Navigator.pop(context);
                         Navigator.pushNamed(context, AppRouter.products);
                       },
                     ),
-                    _disabledCard(
-                      icon: Icons.file_download_rounded,
-                      title: 'Exportar',
-                      color: const Color(0xFFFFA726),
+                  ListTile(
+                    leading: const Icon(Icons.warning_amber_rounded),
+                    title: const Text('Alertas'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, AppRouter.alerts);
+                    },
+                  ),
+                  if (isAdmin)
+                    ListTile(
+                      leading: const Icon(Icons.history_rounded),
+                      title: const Text('Historial'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Historial próximamente'),
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ListTile(
+                    leading: const Icon(Icons.logout_rounded),
+                    title: const Text('Cerrar sesión'),
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(
+                          context,
+                          AppRouter.login,
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
-              const SioBottomNav(
-                currentRoute: AppRouter.home,
+            ),
+          ),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF071827),
+            elevation: 0,
+            titleSpacing: 0,
+            title: Row(
+              children: [
+                _headerLogo(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '¡Hola, $userName!',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRouter.alerts);
+                },
+                icon: const Icon(Icons.notifications_none_rounded),
               ),
             ],
           ),
-        ),
-      ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 14,
+                      crossAxisSpacing: 14,
+                      childAspectRatio: 1.08,
+                      children: cards,
+                    ),
+                  ),
+                  const SioBottomNav(
+                    currentRoute: AppRouter.home,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

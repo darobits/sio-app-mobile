@@ -53,4 +53,8 @@ class AuthService {
       return e.toString();
     }
   }
+
+  Future<void> logout() async {
+    await _auth.signOut();
+  }
 }

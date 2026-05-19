@@ -11,12 +11,25 @@ class AppUser {
     required this.role,
   });
 
+  factory AppUser.fromMap(Map<String, dynamic> map) {
+    return AppUser(
+      uid: map['uid'] ?? '',
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      role: map['rol'] ?? map['role'] ?? 'operador',
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
       'name': name,
       'email': email,
-      'role': role,
+      'rol': role,
     };
   }
+
+  bool get isAdmin => role == 'admin';
+
+  bool get isOperator => role == 'operador';
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../core/router/app_router.dart';
 import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -88,6 +90,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showModernDialog("Error", errores.join("\n"), false);
   }
 
+  void goToLogin() {
+    Navigator.pushReplacementNamed(context, AppRouter.login);
+  }
+
   void showModernDialog(String title, String message, bool success) {
     showDialog(
       context: context,
@@ -145,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Navigator.pop(context);
 
                   if (success) {
-                    Navigator.pop(context);
+                    goToLogin();
                   }
                 },
                 child: Container(
@@ -164,6 +170,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               )
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget inputTitle(String text) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 7),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -193,14 +216,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-            ),
-          ),
-          Positioned(
-            top: 50,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
             ),
           ),
           Center(
@@ -247,6 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: Column(
                         children: [
+                          inputTitle("Nombre y apellido"),
                           TextField(
                             controller: nameCtrl,
                             style: const TextStyle(color: Colors.white),
@@ -258,6 +274,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.25),
+                              hintStyle:
+                                  const TextStyle(color: Colors.white54),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide.none,
@@ -265,6 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 15),
+                          inputTitle("Email"),
                           TextField(
                             controller: emailCtrl,
                             style: const TextStyle(color: Colors.white),
@@ -276,6 +295,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.25),
+                              hintStyle:
+                                  const TextStyle(color: Colors.white54),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide.none,
@@ -283,6 +304,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 15),
+                          inputTitle("Contraseña"),
                           TextField(
                             controller: passCtrl,
                             obscureText: true,
@@ -295,6 +317,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.25),
+                              hintStyle:
+                                  const TextStyle(color: Colors.white54),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide.none,
@@ -326,7 +350,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 20),
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: goToLogin,
                       child: const Text(
                         "Ya tengo cuenta",
                         style: TextStyle(color: Colors.white70),
@@ -335,6 +359,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.white,
+              ),
+              onPressed: goToLogin,
             ),
           ),
         ],
