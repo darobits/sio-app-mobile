@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/product.dart';
+import '../services/alert_service.dart';
 
 class AuditRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -22,7 +23,8 @@ class AuditRepository {
     required int realStock,
   }) async {
     final user = _auth.currentUser;
-    final difference = realStock - product.currentStock;
+    final expectedStock = product.currentStock;
+    final difference = realStock - expectedStock;
 
     final batch = _db.batch();
 
@@ -31,7 +33,7 @@ class AuditRepository {
     batch.set(auditRef, {
       'barcode': product.barcode,
       'productName': product.name,
-      'expectedStock': product.currentStock,
+      'expectedStock': expectedStock,
       'realStock': realStock,
       'difference': difference,
       'auditedByUid': user?.uid,
@@ -46,22 +48,19 @@ class AuditRepository {
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    if (difference != 0) {
-      final alertRef = _db.collection('alerts').doc();
-
-      batch.set(alertRef, {
-        'type': 'stock_difference',
-        'title': 'Diferencia de stock detectada',
-        'message':
-            '${product.name}: esperado ${product.currentStock}, real $realStock. Diferencia: $difference unidades.',
-        'barcode': product.barcode,
-        'productName': product.name,
-        'difference': difference,
-        'createdAt': FieldValue.serverTimestamp(),
-        'read': false,
-      });
-    }
-
     await batch.commit();
+
+    await AlertService.checkAuditDifference(
+      barcode: product.barcode,
+      productName: product.name,
+      expectedStock: expectedStock,
+      realStock: realStock,
+    );
+
+    await AlertService.checkLowStock(
+      barcode: product.barcode,
+      productName: product.name,
+      currentStock: realStock,
+    );
   }
 }

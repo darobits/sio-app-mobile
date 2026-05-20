@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../services/alert_service.dart';
+
 class ProductFormScreen extends StatefulWidget {
   final String barcode;
 
@@ -62,6 +64,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       final productRef = db.collection('products').doc(widget.barcode);
       final productSnapshot = await productRef.get();
 
+      final previousStock = productSnapshot.exists
+          ? (productSnapshot.data()?['currentStock'] as int? ?? 0)
+          : 0;
+
+      final newStock = previousStock + totalUnits;
+
       final batch = db.batch();
 
       if (productSnapshot.exists) {
@@ -90,12 +98,26 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         'conversionFactor': conversionFactor,
         'receivedQuantity': receivedQuantity,
         'totalUnits': totalUnits,
+        'previousStock': previousStock,
+        'newStock': newStock,
         'receivedByUid': currentUser?.uid,
         'receivedByEmail': currentUser?.email,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
       await batch.commit();
+
+      await AlertService.checkAbnormalLoad(
+        barcode: widget.barcode,
+        productName: name,
+        receivedUnits: totalUnits,
+      );
+
+      await AlertService.checkLowStock(
+        barcode: widget.barcode,
+        productName: name,
+        currentStock: newStock,
+      );
 
       if (!mounted) return;
 
@@ -104,7 +126,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       showResultDialog(
         title: 'Producto guardado',
         message:
-            '$name\n\nCódigo: ${widget.barcode}\nStock recibido: $totalUnits unidades\nOperador: ${currentUser?.email ?? "Sin usuario"}',
+            '$name\n\nCódigo: ${widget.barcode}\nStock recibido: $totalUnits unidades\nStock actual: $newStock unidades\nOperador: ${currentUser?.email ?? "Sin usuario"}',
         success: true,
       );
     } catch (e) {
