@@ -7,6 +7,8 @@ import '../../screens/product_form_screen.dart';
 import '../../screens/products_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/audit_screen.dart';
+import '../../screens/statistics_screen.dart';
+import '../../screens/alerts_screen.dart';
 
 class AppRouter {
   static const String login = "/";
@@ -77,28 +79,12 @@ class AppRouter {
 
       case statistics:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            backgroundColor: Color(0xFF071827),
-            body: Center(
-              child: Text(
-                "Estadísticas próximamente",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+          builder: (_) => const StatisticsScreen(),
         );
 
       case alerts:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            backgroundColor: Color(0xFF071827),
-            body: Center(
-              child: Text(
-                "Alertas próximamente",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+          builder: (_) => const AlertsScreen(),
         );
 
       case profile:

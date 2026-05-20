@@ -41,6 +41,8 @@ dependencies:
   firebase_core: ^4.7.0
   mobile_scanner: ^7.2.0
   flutter_riverpod: ^3.3.1
+  fl_chart: ^1.2.0
+  flutter_local_notifications: ^21.0.0
 
 dev_dependencies:
   flutter_test:
