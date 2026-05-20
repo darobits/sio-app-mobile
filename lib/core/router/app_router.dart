@@ -9,6 +9,7 @@ import '../../screens/home_screen.dart';
 import '../../screens/audit_screen.dart';
 import '../../screens/statistics_screen.dart';
 import '../../screens/alerts_screen.dart';
+import '../../screens/profile_screen.dart';
 
 class AppRouter {
   static const String login = "/";
@@ -89,15 +90,7 @@ class AppRouter {
 
       case profile:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            backgroundColor: Color(0xFF071827),
-            body: Center(
-              child: Text(
-                "Perfil próximamente",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+          builder: (_) => const ProfileScreen(),
         );
 
       default:
