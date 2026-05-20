@@ -15,12 +15,12 @@ class HomeScreen extends ConsumerWidget {
       child: Column(
         children: [
           Container(
-            width: 112,
-            height: 112,
+            width: 172,
+            height: 172,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: const Color(0xFF0B1B2B),
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(95),
               border: Border.all(
                 color: const Color(0xFF16A085).withOpacity(0.55),
               ),
@@ -33,7 +33,7 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(95),
               child: Image.asset(
                 'assets/logo.jpeg',
                 fit: BoxFit.contain,
@@ -65,27 +65,126 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _headerLogo() {
+  Widget _drawerButton({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B1B2B),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.08),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.16),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white30,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerLogoutButton({
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.redAccent.withOpacity(0.11),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: Colors.redAccent.withOpacity(0.35),
+            ),
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Icons.logout_rounded,
+                color: Colors.redAccent,
+                size: 23,
+              ),
+              SizedBox(width: 13),
+              Expanded(
+                child: Text(
+                  'Cerrar sesión',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _appBarLogo() {
     return Container(
-      width: 46,
-      height: 46,
+      width: 42,
+      height: 42,
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: const Color(0xFF111827),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF071827),
+        borderRadius: BorderRadius.circular(30),
         border: Border.all(
           color: const Color(0xFF16A085).withOpacity(0.45),
         ),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF16A085).withOpacity(0.16),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(11),
         child: Image.asset(
           'assets/logo.jpeg',
           fit: BoxFit.contain,
@@ -287,21 +386,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _disabledCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
-    return _dashboardCard(
-      icon: icon,
-      title: title,
-      subtitle: subtitle,
-      color: color,
-      onTap: () {},
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
@@ -377,11 +461,14 @@ class HomeScreen extends ConsumerWidget {
                 Navigator.pushNamed(context, AppRouter.products);
               },
             ),
-            _disabledCard(
+            _dashboardCard(
               icon: Icons.file_download_rounded,
               title: 'Exportar',
-              subtitle: 'Reportes CSV / PDF',
+              subtitle: 'Reportes CSV / Excel / PDF',
               color: const Color(0xFFFFA726),
+              onTap: () {
+                Navigator.pushNamed(context, AppRouter.exportReports);
+              },
             ),
           ]);
         }
@@ -396,34 +483,38 @@ class HomeScreen extends ConsumerWidget {
                   _drawerLogo(),
                   const Divider(color: Colors.white12),
                   if (isAdmin)
-                    ListTile(
-                      leading: const Icon(Icons.inventory_2_rounded),
-                      title: const Text('Productos'),
+                    _drawerButton(
+                      icon: Icons.inventory_2_rounded,
+                      title: 'Productos',
+                      color: const Color(0xFFFFC857),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, AppRouter.products);
                       },
                     ),
-                  ListTile(
-                    leading: const Icon(Icons.sync_rounded),
-                    title: const Text('Auditoría'),
+                  _drawerButton(
+                    icon: Icons.fact_check_rounded,
+                    title: 'Auditoría',
+                    color: const Color(0xFF4F7BFF),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, AppRouter.audit);
                     },
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.warning_amber_rounded),
-                    title: const Text('Alertas'),
+                  _drawerButton(
+                    icon: Icons.warning_amber_rounded,
+                    title: 'Alertas',
+                    color: const Color(0xFFFF5C70),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, AppRouter.alerts);
                     },
                   ),
                   if (isAdmin)
-                    ListTile(
-                      leading: const Icon(Icons.history_rounded),
-                      title: const Text('Historial'),
+                    _drawerButton(
+                      icon: Icons.history_rounded,
+                      title: 'Historial',
+                      color: const Color(0xFF8B5CF6),
                       onTap: () {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -433,11 +524,23 @@ class HomeScreen extends ConsumerWidget {
                         );
                       },
                     ),
+                  if (isAdmin)
+                    _drawerButton(
+                      icon: Icons.manage_accounts_rounded,
+                      title: 'Gestión de usuarios',
+                      color: const Color(0xFF16A085),
+                      onTap: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Gestión de usuarios próximamente'),
+                          ),
+                        );
+                      },
+                    ),
                   const Spacer(),
                   const Divider(color: Colors.white12),
-                  ListTile(
-                    leading: const Icon(Icons.logout_rounded),
-                    title: const Text('Cerrar sesión'),
+                  _drawerLogoutButton(
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
 
@@ -455,14 +558,13 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
           appBar: AppBar(
-            backgroundColor: const Color(0xFF071827),
+            backgroundColor: const Color(0xFF111827),
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            titleSpacing: 0,
             title: Row(
               children: [
-                _headerLogo(),
+                _appBarLogo(),
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
@@ -472,7 +574,6 @@ class HomeScreen extends ConsumerWidget {
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
@@ -487,40 +588,38 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.only(bottom: 56),
-                      children: [
-                        _heroCard(
-                          userName: userName,
-                          isAdmin: isAdmin,
-                        ),
-                        const SizedBox(height: 34),
-                        _sectionHeader(),
-                        const SizedBox(height: 14),
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 14,
-                          crossAxisSpacing: 14,
-                          childAspectRatio: 0.96,
-                          children: cards,
-                        ),
-                      ],
-                    ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 56),
+                    children: [
+                      _heroCard(
+                        userName: userName,
+                        isAdmin: isAdmin,
+                      ),
+                      const SizedBox(height: 34),
+                      _sectionHeader(),
+                      const SizedBox(height: 14),
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 14,
+                        crossAxisSpacing: 14,
+                        childAspectRatio: 0.96,
+                        children: cards,
+                      ),
+                    ],
                   ),
-                  const SioBottomNav(
-                    currentRoute: AppRouter.home,
-                  ),
-                ],
+                ),
               ),
-            ),
+              const SioBottomNav(
+                currentRoute: AppRouter.home,
+              ),
+            ],
           ),
         );
       },
