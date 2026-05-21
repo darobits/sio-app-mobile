@@ -11,6 +11,7 @@ import '../../screens/statistics_screen.dart';
 import '../../screens/alerts_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/export_reports_screen.dart';
+import '../../screens/stock_history_screen.dart';
 
 class AppRouter {
   static const String login = "/";
@@ -24,6 +25,7 @@ class AppRouter {
   static const String alerts = "/alerts";
   static const String profile = "/profile";
   static const String exportReports = "/export-reports";
+  static const String stockHistory = "/stock-history";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -98,6 +100,11 @@ class AppRouter {
       case exportReports:
         return MaterialPageRoute(
           builder: (_) => const ExportReportsScreen(),
+        );
+
+      case stockHistory:
+        return MaterialPageRoute(
+          builder: (_) => const StockHistoryScreen(),
         );
 
       default:

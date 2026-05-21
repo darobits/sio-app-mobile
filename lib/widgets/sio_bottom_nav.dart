@@ -65,11 +65,7 @@ class SioBottomNav extends StatelessWidget {
                 subtitle: 'Controlar stock esperado vs stock real',
                 onTap: () {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Auditoría estará disponible pronto'),
-                    ),
-                  );
+                  Navigator.pushNamed(context, AppRouter.audit);
                 },
               ),
             ],
