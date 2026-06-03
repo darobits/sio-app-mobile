@@ -511,15 +511,15 @@ class HomeScreen extends ConsumerWidget {
                     },
                   ),
                   if (isAdmin)
-  _drawerButton(
-    icon: Icons.history_rounded,
-    title: 'Historial',
-    color: const Color(0xFF8B5CF6),
-    onTap: () {
-      Navigator.pop(context);
-      Navigator.pushNamed(context, AppRouter.stockHistory);
-    },
-  ),
+                    _drawerButton(
+                      icon: Icons.history_rounded,
+                      title: 'Historial',
+                      color: const Color(0xFF8B5CF6),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, AppRouter.stockHistory);
+                      },
+                    ),
                   if (isAdmin)
                     _drawerButton(
                       icon: Icons.manage_accounts_rounded,
@@ -527,11 +527,7 @@ class HomeScreen extends ConsumerWidget {
                       color: const Color(0xFF16A085),
                       onTap: () {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Gestión de usuarios próximamente'),
-                          ),
-                        );
+                        Navigator.pushNamed(context, AppRouter.userManagement);
                       },
                     ),
                   const Spacer(),
