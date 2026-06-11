@@ -6,7 +6,8 @@ import '../core/router/app_router.dart';
 import '../providers/user_provider.dart';
 import '../widgets/sio_bottom_nav.dart';
 
-// DEMO SEED - BORRAR DESPUESSSSSSSSSSSSSSSSSSS
+// DEMO SEED:
+//este import es solo para el método de carga demo, que no forma parte del código real.
 import '../services/demo_seed_service.dart';
 
 class HomeScreen extends ConsumerWidget {

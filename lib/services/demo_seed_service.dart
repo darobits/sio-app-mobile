@@ -1,3 +1,7 @@
+//esta es una clase de servicio para generar datos de ejemplo en Firestore, útil para demostraciones o pruebas. 
+//No es parte del código real. 
+//es solo para la muestra.
+
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';

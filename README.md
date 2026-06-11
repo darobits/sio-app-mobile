@@ -145,7 +145,6 @@ Firebase (sincronización)
 Desarrollar una aplicación funcional, escalable y cercana a un entorno real de negocio, cumpliendo con los requisitos académicos y aplicando buenas prácticas de desarrollo mobile.
 
 ---
-
 ##  Autor
 
 Proyecto desarrollado como trabajo práctico en ORT
