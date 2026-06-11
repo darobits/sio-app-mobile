@@ -53,15 +53,39 @@ class DemoSeedService {
         'role': 'admin',
         'rol': 'admin',
       },
+      {
+        'uid': 'demo-operador-004',
+        'name': 'Carla Inventario',
+        'email': 'carla.inventario@sio.com',
+        'role': 'operador',
+        'rol': 'operador',
+      },
+      {
+        'uid': 'demo-operador-005',
+        'name': 'Diego Almacén',
+        'email': 'diego.almacen@sio.com',
+        'role': 'operador',
+        'rol': 'operador',
+      },
+      {
+        'uid': 'demo-admin-003',
+        'name': 'Jefa Operativa',
+        'email': 'jefa.operativa@sio.com',
+        'role': 'admin',
+        'rol': 'admin',
+      },
     ];
 
     for (final demoUser in demoUsers) {
+      final uid = demoUser['uid'] as String;
+      final createdAt = _randomHistoricalDate();
+
       batch.set(
-        _db.collection('usuarios').doc(demoUser['uid'] as String),
+        _db.collection('usuarios').doc(uid),
         {
           ...demoUser,
-          'createdAt': Timestamp.fromDate(_randomHistoricalDate()),
-          'updatedAt': Timestamp.fromDate(DateTime.now()),
+          'createdAt': Timestamp.fromDate(createdAt),
+          'updatedAt': Timestamp.fromDate(_dateAfter(createdAt, maxDays: 90)),
         },
         SetOptions(merge: true),
       );
@@ -86,21 +110,53 @@ class DemoSeedService {
 
     final receptions = _generateReceptions(products, demoUsers);
 
-    for (final reception in receptions) {
-      batch.set(_db.collection('receptions').doc(), reception);
+    for (int i = 0; i < receptions.length; i++) {
+      batch.set(
+        _db.collection('receptions').doc(
+              'demo-reception-${i.toString().padLeft(3, '0')}',
+            ),
+        receptions[i],
+        SetOptions(merge: true),
+      );
     }
 
     final audits = _generateAudits(products, demoUsers);
 
-    for (final audit in audits) {
-      batch.set(_db.collection('audits').doc(), audit);
+    for (int i = 0; i < audits.length; i++) {
+      batch.set(
+        _db.collection('audits').doc(
+              'demo-audit-${i.toString().padLeft(3, '0')}',
+            ),
+        audits[i],
+        SetOptions(merge: true),
+      );
     }
 
     final alerts = _generateAlertsFromAudits(audits);
 
-    for (final alert in alerts) {
-      batch.set(_db.collection('alerts').doc(), alert);
+    for (int i = 0; i < alerts.length; i++) {
+      batch.set(
+        _db.collection('alerts').doc(
+              'demo-alert-${i.toString().padLeft(3, '0')}',
+            ),
+        alerts[i],
+        SetOptions(merge: true),
+      );
     }
+
+    batch.set(
+      _db.collection('demo_seed_control').doc('main'),
+      {
+        'seedName': 'SIO demo ferreteria',
+        'productsCount': products.length,
+        'usersCount': demoUsers.length,
+        'receptionsCount': receptions.length,
+        'auditsCount': audits.length,
+        'alertsCount': alerts.length,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
 
     await batch.commit();
   }
@@ -213,15 +269,21 @@ class DemoSeedService {
     return List.generate(names.length, (index) {
       final barcode = '7799${(100000000 + index).toString()}';
       final conversionFactor = _randomFrom([1, 6, 10, 12, 18, 24, 50, 100]);
-      final minimumStock = _random.nextInt(45) + 10;
-      final currentStock = _random.nextInt(230) + 5;
+
+      final lowStockChance = _random.nextInt(100);
+      final currentStock = lowStockChance < 18
+          ? _random.nextInt(10) + 1
+          : _random.nextInt(230) + 12;
 
       return {
         'barcode': barcode,
         'name': names[index],
         'conversionFactor': conversionFactor,
         'currentStock': currentStock,
-        'minimumStock': minimumStock,
+
+        // Campo extra útil para Firestore, aunque tu modelo Product actual no lo use.
+        // No rompe nada porque Product.fromMap simplemente lo ignora.
+        'minimumStock': 10,
       };
     });
   }
@@ -232,12 +294,14 @@ class DemoSeedService {
   ) {
     final receptions = <Map<String, dynamic>>[];
 
-    for (int i = 0; i < 150; i++) {
+    for (int i = 0; i < 180; i++) {
       final product = products[_random.nextInt(products.length)];
       final user = _randomUser(users);
+
       final conversionFactor = product['conversionFactor'] as int;
-      final receivedQuantity = _random.nextInt(8) + 1;
+      final receivedQuantity = _random.nextInt(10) + 1;
       final totalUnits = receivedQuantity * conversionFactor;
+
       final previousStock = _random.nextInt(160);
       final newStock = previousStock + totalUnits;
 
@@ -265,11 +329,29 @@ class DemoSeedService {
   ) {
     final audits = <Map<String, dynamic>>[];
 
-    for (int i = 0; i < 90; i++) {
+    for (int i = 0; i < 120; i++) {
       final product = products[_random.nextInt(products.length)];
       final user = _randomUser(users);
+
       final expectedStock = _random.nextInt(220) + 5;
-      final difference = _randomFrom([-12, -8, -5, -3, -1, 0, 0, 0, 2, 4, 6]);
+      final difference = _randomFrom([
+        -18,
+        -12,
+        -8,
+        -5,
+        -3,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        2,
+        4,
+        6,
+        9,
+        12,
+      ]);
+
       final realStock = max(0, expectedStock + difference);
 
       audits.add({
@@ -297,7 +379,7 @@ class DemoSeedService {
       final difference = audit['difference'] as int;
 
       if (difference == 0) continue;
-      if (alerts.length >= 45) break;
+      if (alerts.length >= 65) break;
 
       final productName = audit['productName'];
       final expected = audit['expectedStock'];
@@ -325,9 +407,13 @@ class DemoSeedService {
 
   static DateTime _randomHistoricalDate() {
     final now = DateTime.now();
-    final start = DateTime(now.year - 1, 1, 1);
+
+    // Pensado para tu caso actual:
+    // datos del año completo 2025 + meses actuales de 2026.
+    final start = DateTime(2025, 1, 1);
     final end = now;
-    final totalDays = end.difference(start).inDays;
+
+    final totalDays = max(1, end.difference(start).inDays);
     final randomDays = _random.nextInt(totalDays);
 
     return start.add(
@@ -349,6 +435,7 @@ class DemoSeedService {
     );
 
     final now = DateTime.now();
+
     return candidate.isAfter(now) ? now : candidate;
   }
 

@@ -23,20 +23,13 @@ class UserManagementRepository {
     required String uid,
     required String role,
   }) async {
-    await _db.collection('usuarios').doc(uid).update({
-      'role': role,
-      'rol': role,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
-
-  Future<void> updateUserName({
-    required String uid,
-    required String name,
-  }) async {
-    await _db.collection('usuarios').doc(uid).update({
-      'name': name,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    await _db.collection('usuarios').doc(uid).set(
+      {
+        'role': role,
+        'rol': role,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
   }
 }

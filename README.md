@@ -140,19 +140,6 @@ Firebase (sincronización)
 
 ---
 
-##  Estado del proyecto
-
- En desarrollo
-
-Actualmente incluye:
-
-* Login / Register funcional
-* Base de Firebase configurada
-* Scanner en desarrollo
-* Módulo de recepción en progreso
-
----
-
 ##  Objetivo
 
 Desarrollar una aplicación funcional, escalable y cercana a un entorno real de negocio, cumpliendo con los requisitos académicos y aplicando buenas prácticas de desarrollo mobile.

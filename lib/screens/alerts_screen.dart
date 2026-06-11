@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,8 +9,17 @@ import '../providers/alert_provider.dart';
 import '../services/notification_service.dart';
 import '../widgets/sio_bottom_nav.dart';
 
-class AlertsScreen extends ConsumerWidget {
+class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
+
+  @override
+  ConsumerState<AlertsScreen> createState() => _AlertsScreenState();
+}
+
+class _AlertsScreenState extends ConsumerState<AlertsScreen> {
+  static const int _alertsPageSize = 10;
+
+  int _currentPage = 0;
 
   Color _alertColor(String type) {
     switch (type) {
@@ -224,6 +235,11 @@ class AlertsScreen extends ConsumerWidget {
       onDismissed: (_) async {
         final repository = ref.read(alertRepositoryProvider);
         await repository.deleteAlert(alert.id);
+
+        setState(() {
+          _currentPage = 0;
+        });
+
         ref.invalidate(alertsProvider);
       },
       child: InkWell(
@@ -365,8 +381,124 @@ class AlertsScreen extends ConsumerWidget {
     );
   }
 
+  Widget _paginationControls({
+    required int totalAlerts,
+    required int totalPages,
+    required int start,
+    required int end,
+  }) {
+    final canGoBack = _currentPage > 0;
+    final canGoNext = _currentPage < totalPages - 1;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111827),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Mostrando ${start + 1}-$end de $totalAlerts',
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Anterior',
+            onPressed: canGoBack
+                ? () {
+                    setState(() {
+                      _currentPage--;
+                    });
+                  }
+                : null,
+            icon: Icon(
+              Icons.chevron_left_rounded,
+              color: canGoBack ? Colors.white : Colors.white24,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0B1220),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Text(
+              '${_currentPage + 1}/$totalPages',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Siguiente',
+            onPressed: canGoNext
+                ? () {
+                    setState(() {
+                      _currentPage++;
+                    });
+                  }
+                : null,
+            icon: Icon(
+              Icons.chevron_right_rounded,
+              color: canGoNext ? Colors.white : Colors.white24,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _alertsList({
+    required BuildContext context,
+    required WidgetRef ref,
+    required List<SioAlert> alerts,
+  }) {
+    if (alerts.isEmpty) {
+      return _emptyAlerts();
+    }
+
+    final totalPages = (alerts.length / _alertsPageSize).ceil();
+
+    if (_currentPage >= totalPages) {
+      _currentPage = totalPages - 1;
+    }
+
+    final start = _currentPage * _alertsPageSize;
+    final end = math.min(start + _alertsPageSize, alerts.length);
+    final visibleAlerts = alerts.sublist(start, end);
+
+    return Column(
+      children: [
+        ...visibleAlerts.map((alert) {
+          return _alertCard(
+            context: context,
+            ref: ref,
+            alert: alert,
+          );
+        }),
+        if (alerts.length > _alertsPageSize)
+          _paginationControls(
+            totalAlerts: alerts.length,
+            totalPages: totalPages,
+            start: start,
+            end: end,
+          ),
+      ],
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final alertsAsync = ref.watch(alertsProvider);
 
     return Scaffold(
@@ -380,6 +512,10 @@ class AlertsScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          setState(() {
+            _currentPage = 0;
+          });
+
           ref.invalidate(alertsProvider);
         },
         child: ListView(
@@ -451,18 +587,10 @@ class AlertsScreen extends ConsumerWidget {
                 style: TextStyle(color: Colors.white70),
               ),
               data: (alerts) {
-                if (alerts.isEmpty) {
-                  return _emptyAlerts();
-                }
-
-                return Column(
-                  children: alerts.map((alert) {
-                    return _alertCard(
-                      context: context,
-                      ref: ref,
-                      alert: alert,
-                    );
-                  }).toList(),
+                return _alertsList(
+                  context: context,
+                  ref: ref,
+                  alerts: alerts,
                 );
               },
             ),

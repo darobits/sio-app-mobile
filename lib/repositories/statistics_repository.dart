@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/operational_stats.dart';
@@ -13,14 +15,28 @@ class StatisticsRepository {
 
     final receptionsSnapshot = await _db
         .collection('receptions')
-        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
-        .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to))
+        .where(
+          'createdAt',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(from),
+        )
+        .where(
+          'createdAt',
+          isLessThanOrEqualTo: Timestamp.fromDate(to),
+        )
+        .orderBy('createdAt')
         .get();
 
     final auditsSnapshot = await _db
         .collection('audits')
-        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from))
-        .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(to))
+        .where(
+          'createdAt',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(from),
+        )
+        .where(
+          'createdAt',
+          isLessThanOrEqualTo: Timestamp.fromDate(to),
+        )
+        .orderBy('createdAt')
         .get();
 
     int totalStock = 0;
@@ -28,69 +44,79 @@ class StatisticsRepository {
 
     for (final doc in productsSnapshot.docs) {
       final data = doc.data();
-      final stock = data['currentStock'];
 
-      if (stock is int) {
-        totalStock += stock;
+      final stock = _asInt(data['currentStock']);
 
-        if (stock <= 10) {
-          lowStockProducts++;
-        }
+      totalStock += stock;
+
+      if (stock <= 10) {
+        lowStockProducts++;
       }
     }
 
     int totalReceivedUnits = 0;
+
     final receptionsByUser = <String, int>{};
     final receivedUnitsByProduct = <String, int>{};
     final receptionsByDay = <String, int>{};
 
+    final rangeDays = max(1, to.difference(from).inDays);
+    final groupByMonth = rangeDays > 60;
+
     for (final doc in receptionsSnapshot.docs) {
       final data = doc.data();
 
-      final totalUnits = data['totalUnits'];
-      final userEmail = data['receivedByEmail'];
-      final productName = data['productName'];
+      final totalUnits = _asInt(data['totalUnits']);
+
+      final userName = _asString(
+        data['receivedByName'],
+        fallback: _asString(
+          data['receivedByEmail'],
+          fallback: 'Sin usuario',
+        ),
+      );
+
+      final productName = _asString(
+        data['productName'],
+        fallback: 'Sin producto',
+      );
+
       final createdAt = data['createdAt'];
 
-      if (totalUnits is int) {
-        totalReceivedUnits += totalUnits;
-      }
+      totalReceivedUnits += totalUnits;
 
-      if (userEmail is String && userEmail.trim().isNotEmpty) {
-        receptionsByUser[userEmail] = (receptionsByUser[userEmail] ?? 0) + 1;
-      }
+      receptionsByUser[userName] = (receptionsByUser[userName] ?? 0) + 1;
 
-      if (productName is String && productName.trim().isNotEmpty) {
-        receivedUnitsByProduct[productName] =
-            (receivedUnitsByProduct[productName] ?? 0) +
-                (totalUnits is int ? totalUnits : 0);
-      }
+      receivedUnitsByProduct[productName] =
+          (receivedUnitsByProduct[productName] ?? 0) + totalUnits;
 
       if (createdAt is Timestamp) {
         final date = createdAt.toDate();
-        final key =
-            '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
+        final key = groupByMonth ? _monthKey(date) : _dayKey(date);
 
         receptionsByDay[key] = (receptionsByDay[key] ?? 0) + 1;
       }
     }
 
     int auditsWithDifference = 0;
+
     final auditsDifferenceByProduct = <String, int>{};
 
     for (final doc in auditsSnapshot.docs) {
       final data = doc.data();
 
-      final difference = data['difference'];
-      final productName = data['productName'];
+      final difference = _asInt(data['difference']);
 
-      if (difference is int && difference != 0) {
+      final productName = _asString(
+        data['productName'],
+        fallback: 'Sin producto',
+      );
+
+      if (difference != 0) {
         auditsWithDifference++;
 
-        if (productName is String && productName.trim().isNotEmpty) {
-          auditsDifferenceByProduct[productName] =
-              (auditsDifferenceByProduct[productName] ?? 0) + 1;
-        }
+        auditsDifferenceByProduct[productName] =
+            (auditsDifferenceByProduct[productName] ?? 0) + difference.abs();
       }
     }
 
@@ -107,5 +133,38 @@ class StatisticsRepository {
       receptionsByDay: receptionsByDay,
       auditsDifferenceByProduct: auditsDifferenceByProduct,
     );
+  }
+
+  int _asInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+
+    return 0;
+  }
+
+  String _asString(
+    dynamic value, {
+    required String fallback,
+  }) {
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+
+    return fallback;
+  }
+
+  String _dayKey(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+
+    return '$day/$month';
+  }
+
+  String _monthKey(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
+
+    return '$month/$year';
   }
 }

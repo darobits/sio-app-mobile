@@ -40,6 +40,7 @@ class AlertService {
     required String productName,
     required int currentStock,
     int minimumStock = 10,
+    bool sendNotification = true,
   }) async {
     if (currentStock > minimumStock) return;
 
@@ -50,6 +51,7 @@ class AlertService {
           '$productName tiene stock bajo. Quedan $currentStock unidades disponibles.',
       barcode: barcode,
       productName: productName,
+      sendNotification: sendNotification,
     );
   }
 
@@ -58,6 +60,7 @@ class AlertService {
     required String productName,
     required int expectedStock,
     required int realStock,
+    bool sendNotification = true,
   }) async {
     final difference = realStock - expectedStock;
 
@@ -71,6 +74,7 @@ class AlertService {
       barcode: barcode,
       productName: productName,
       difference: difference,
+      sendNotification: sendNotification,
     );
   }
 
@@ -79,6 +83,7 @@ class AlertService {
     required String productName,
     required int receivedUnits,
     int abnormalThreshold = 500,
+    bool sendNotification = true,
   }) async {
     if (receivedUnits < abnormalThreshold) return;
 
@@ -89,6 +94,7 @@ class AlertService {
           '$productName recibió una carga alta de $receivedUnits unidades.',
       barcode: barcode,
       productName: productName,
+      sendNotification: sendNotification,
     );
   }
 }

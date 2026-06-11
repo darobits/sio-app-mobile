@@ -6,6 +6,9 @@ import '../core/router/app_router.dart';
 import '../providers/user_provider.dart';
 import '../widgets/sio_bottom_nav.dart';
 
+// DEMO SEED - BORRAR DESPUESSSSSSSSSSSSSSSSSSS
+import '../services/demo_seed_service.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -386,6 +389,48 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  // TODO DEMO SEED - BORRAR DESPUÉS:
+  // Este método ejecuta la carga demo en Firestore.
+  // Cuando confirmes que ya se cargaron products, usuarios, receptions,
+  // audits y alerts, borrá este método completo.
+  Future<void> _runDemoSeed(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Cargando datos demo en Firebase...'),
+        ),
+      );
+
+      await DemoSeedService.seedDemoData();
+
+      ref.invalidate(currentUserProvider);
+
+      if (!context.mounted) return;
+
+      messenger.showSnackBar(
+        const SnackBar(
+          backgroundColor: Color(0xFF16A085),
+          content: Text(
+            'Datos demo cargados correctamente. Revisá Productos, Stats, Usuarios e Historial.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text(
+            'Error al cargar seed: $e',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
@@ -572,6 +617,23 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
             actions: [
+              // TODO DEMO SEED - BORRAR DESPUÉS:
+              // Botón temporal para cargar datos demo en Firebase.
+              // Ejecutalo una sola vez logueado como admin.
+              // Después de confirmar que aparecen Productos, Stats,
+              // Gestión de usuarios e Historial, borrá este IconButton.
+              if (isAdmin)
+                IconButton(
+                  tooltip: 'Cargar datos demo',
+                  onPressed: () {
+                    _runDemoSeed(context, ref);
+                  },
+                  icon: const Icon(
+                    Icons.cloud_upload_rounded,
+                    color: Color(0xFFFFC857),
+                  ),
+                ),
+
               IconButton(
                 onPressed: () {
                   Navigator.pushNamed(context, AppRouter.alerts);

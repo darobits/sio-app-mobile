@@ -4,6 +4,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../core/router/app_router.dart';
 import '../providers/audit_provider.dart';
+import '../providers/alert_provider.dart';
+import '../services/alert_service.dart';
 import '../widgets/sio_bottom_nav.dart';
 
 class AuditScreen extends ConsumerStatefulWidget {
@@ -73,11 +75,38 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
 
     try {
       final repository = ref.read(auditRepositoryProvider);
+      final settings = ref.read(alertSettingsProvider);
+
+      final expectedStock = product.currentStock;
+      final difference = realStock - expectedStock;
 
       await repository.saveAudit(
         product: product,
         realStock: realStock,
       );
+
+      // NOTIFICACIÓN REAL DE SIO:
+      // Si la auditoría detecta diferencia, se crea una alerta en Firestore
+      // y se muestra una notificación local en el celular.
+      if (difference != 0) {
+        try {
+          await AlertService.checkAuditDifference(
+            barcode: product.barcode,
+            productName: product.name,
+            expectedStock: expectedStock,
+            realStock: realStock,
+            sendNotification: settings.auditDifferences,
+          );
+
+          ref.invalidate(alertsProvider);
+        } catch (alertError) {
+          if (mounted) {
+            showMessage(
+              'La auditoría se guardó, pero no se pudo generar la alerta.',
+            );
+          }
+        }
+      }
 
       ref.read(auditProductProvider.notifier).clear();
       realStockCtrl.clear();
@@ -87,7 +116,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
       showResultDialog(
         title: 'Auditoría guardada',
         message:
-            'Producto: ${product.name}\nStock esperado: ${product.currentStock}\nStock real: $realStock\nDiferencia: ${realStock - product.currentStock}',
+            'Producto: ${product.name}\nStock esperado: $expectedStock\nStock real: $realStock\nDiferencia: $difference',
         success: true,
       );
     } catch (e) {
